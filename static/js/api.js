@@ -1,8 +1,6 @@
 const API_BASE_URL = '/api';
 
-// API调用函数
 const api = {
-    // 用户相关API
     async register(username, email, password) {
         const response = await fetch(`${API_BASE_URL}/register`, {
             method: 'POST',
@@ -33,7 +31,30 @@ const api = {
         return data;
     },
 
-    // 简历相关API
+    async getUserProfile(userId) {
+        const response = await fetch(`${API_BASE_URL}/profile/${userId}`);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '获取用户资料失败');
+        }
+        return data;
+    },
+
+    async updateUserProfile(userId, profile) {
+        const response = await fetch(`${API_BASE_URL}/profile/${userId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(profile),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '更新用户资料失败');
+        }
+        return data;
+    },
+
     async uploadResume(file, userId) {
         const formData = new FormData();
         formData.append('file', file);
@@ -93,9 +114,248 @@ const api = {
         }
         return data;
     },
+
+    async deleteResume(resumeId, userId) {
+        const response = await fetch(`${API_BASE_URL}/resume/${resumeId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '删除简历失败');
+        }
+        return data;
+    },
+
+    async createInterviewSession(userId, title = '问诊式求职分析') {
+        const response = await fetch(`${API_BASE_URL}/interviews`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId, title }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '创建问诊任务失败');
+        }
+        return data;
+    },
+
+    async getInterviewSessions(userId) {
+        const response = await fetch(`${API_BASE_URL}/interviews/${userId}`);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '获取问诊任务失败');
+        }
+        return data;
+    },
+
+    async getInterviewSession(sessionId) {
+        const response = await fetch(`${API_BASE_URL}/interview-session/${sessionId}`);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '获取问诊详情失败');
+        }
+        return data;
+    },
+
+    async answerInterviewQuestion(sessionId, answer) {
+        const response = await fetch(`${API_BASE_URL}/interview-session/${sessionId}/answer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ answer }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '提交回答失败');
+        }
+        return data;
+    },
+
+    async moveToNextInterviewStep(sessionId) {
+        const response = await fetch(`${API_BASE_URL}/interview-session/${sessionId}/next-step`, {
+            method: 'POST',
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '推进到下一步失败');
+        }
+        return data;
+    },
+
+    async deleteInterviewSession(sessionId, userId) {
+        const response = await fetch(`${API_BASE_URL}/interview-session/${sessionId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '删除问诊任务失败');
+        }
+        return data;
+    },
+
+    async updateInterviewProfile(sessionId, profile, confirm = false) {
+        const response = await fetch(`${API_BASE_URL}/interview-session/${sessionId}/profile`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ profile, confirm }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '更新画像失败');
+        }
+        return data;
+    },
+
+    async createJobMatch(sessionId, userId, jobTitle, jdText) {
+        const response = await fetch(`${API_BASE_URL}/interview-session/${sessionId}/job-matches`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                job_title: jobTitle,
+                jd_text: jdText,
+            }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '岗位匹配分析失败');
+        }
+        return data;
+    },
+
+    async deleteJobMatch(jobMatchId, userId) {
+        const response = await fetch(`${API_BASE_URL}/job-matches/${jobMatchId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '删除岗位匹配结果失败');
+        }
+        return data;
+    },
+
+    async getResumeOptimizations(resumeId, userId) {
+        const response = await fetch(`${API_BASE_URL}/resume/${resumeId}/optimizations?user_id=${encodeURIComponent(userId)}`);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '获取优化版本失败');
+        }
+        return data;
+    },
+
+    async createResumeOptimization(resumeId, payload) {
+        const response = await fetch(`${API_BASE_URL}/resume/${resumeId}/optimizations`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '生成优化版本失败');
+        }
+        return data;
+    },
+
+    async updateResumeOptimization(versionId, payload) {
+        const response = await fetch(`${API_BASE_URL}/optimizations/${versionId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '更新优化版本失败');
+        }
+        return data;
+    },
+
+    async deleteResumeOptimization(versionId, userId) {
+        const response = await fetch(`${API_BASE_URL}/optimizations/${versionId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '删除优化版本失败');
+        }
+        return data;
+    },
+
+    async exportResumeOptimization(versionId, userId, exportFormat = 'txt') {
+        const response = await fetch(`${API_BASE_URL}/optimizations/${versionId}/export`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId, export_format: exportFormat }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '导出优化版本失败');
+        }
+        return data;
+    },
+
+    async getExportRecords(userId) {
+        const response = await fetch(`${API_BASE_URL}/exports/${userId}`);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '获取导出记录失败');
+        }
+        return data;
+    },
+
+    getExportDownloadUrl(recordId, userId) {
+        return `${API_BASE_URL}/exports/download/${recordId}?user_id=${encodeURIComponent(userId)}`;
+    },
+
+    async getLlmStatus() {
+        const response = await fetch(`${API_BASE_URL}/llm-status`);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '获取大模型状态失败');
+        }
+        return data;
+    },
+
+    async testLlmConnection() {
+        const response = await fetch(`${API_BASE_URL}/llm-test`, {
+            method: 'POST',
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || '大模型连接测试失败');
+        }
+        return data;
+    },
 };
 
-// 用户管理
 const userManager = {
     getUser() {
         const userStr = localStorage.getItem('user');
@@ -114,4 +374,3 @@ const userManager = {
         return this.getUser() !== null;
     },
 };
-

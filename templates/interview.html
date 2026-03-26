@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问诊对话 - AI 简历助手</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="interview-body">
+    <div class="interview-app">
+        <header class="llm-header">
+            <div class="llm-header-left">
+                <a href="/dashboard.html" class="llm-back-link">返回工作台</a>
+                <div class="llm-header-copy">
+                    <h1 id="sessionTitle">问诊式求职分析</h1>
+                    <p id="progressText">准备中...</p>
+                </div>
+            </div>
+            <div class="llm-header-right">
+                <span id="sessionStatus" class="llm-status-pill">进行中</span>
+                <span id="userInfo" class="llm-user-info"></span>
+                <button id="logoutBtn" class="llm-ghost-btn" type="button">退出登录</button>
+            </div>
+        </header>
+
+        <div class="interview-shell">
+            <main class="llm-main-panel">
+                <div id="errorMessage" class="hidden"></div>
+                <div id="successMessage" class="hidden"></div>
+
+                <section class="llm-thread-wrap">
+                    <div id="chatMessages" class="chat-messages llm-thread"></div>
+                </section>
+
+                <section id="answerPanel" class="llm-composer">
+                    <div class="llm-composer-head">
+                        <div>
+                            <div id="questionModeBadge" class="question-mode-badge hidden"></div>
+                            <label for="answerInput" id="answerLabel" class="llm-question-label">当前问题</label>
+                        </div>
+                        <div id="answerTip" class="answer-tip"></div>
+                    </div>
+                    <div id="answerSuggestions" class="answer-suggestions hidden"></div>
+                    <div class="llm-composer-box">
+                        <textarea id="answerInput" rows="4" placeholder="输入你的回答，按 Ctrl+Enter 快速提交"></textarea>
+                        <div class="llm-composer-actions">
+                            <button id="skipAnswerBtn" type="button" class="llm-ghost-btn">先跳过</button>
+                            <button id="nextStepBtn" type="button" class="llm-secondary-btn">下一步</button>
+                            <button id="submitAnswerBtn" type="button" class="llm-primary-btn">发送</button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <aside class="llm-side-panel">
+                <section class="llm-side-card">
+                    <div class="llm-side-card-head">
+                        <h2>画像编辑</h2>
+                        <p>当前对话沉淀出的岗位画像</p>
+                    </div>
+                    <form id="profileForm" class="profile-form"></form>
+                    <div class="profile-actions">
+                        <button id="saveProfileBtn" type="button" class="llm-ghost-btn">保存修改</button>
+                        <button id="confirmProfileBtn" type="button" class="llm-primary-btn">确认画像</button>
+                    </div>
+                    <div id="confirmHint" class="form-hint">问诊完成后才能确认画像。</div>
+                    <div id="sessionSummary" class="summary-box hidden"></div>
+                </section>
+
+                <section class="llm-side-card">
+                    <div class="llm-side-card-head">
+                        <h2>岗位匹配</h2>
+                        <p>粘贴目标岗位 JD，查看适配度</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobTitleInput">目标岗位</label>
+                        <input id="jobTitleInput" type="text" placeholder="例如：后端开发工程师">
+                    </div>
+                    <div class="form-group">
+                        <label for="jobDescriptionInput">岗位 JD</label>
+                        <textarea id="jobDescriptionInput" rows="8" placeholder="粘贴岗位职责、要求、加分项"></textarea>
+                    </div>
+                    <button id="analyzeJobMatchBtn" type="button" class="llm-primary-btn llm-full-btn">开始岗位匹配</button>
+                    <div id="jobMatchResult" class="summary-box hidden"></div>
+                    <div id="jobMatchList" class="resume-list compact-list"></div>
+                </section>
+            </aside>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/interview.js"></script>
+</body>
+</html>

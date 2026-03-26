@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for
 from flask_cors import CORS
 from config import Config
-from models import db
+from models import db, run_schema_updates
 from routes import api
 
 def create_app():
@@ -38,10 +38,15 @@ def create_app():
     @app.route('/resume.html')
     def resume():
         return render_template('resume.html')
+
+    @app.route('/interview.html')
+    def interview():
+        return render_template('interview.html')
     
     # 创建数据库表
     with app.app_context():
         db.create_all()
+        run_schema_updates()
     
     return app
 

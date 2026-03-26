@@ -34,6 +34,7 @@ instance/
 
 # Uploads
 uploads/
+exports/
 
 # IDE
 .vscode/

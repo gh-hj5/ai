@@ -3,59 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>简历详情 - AI简历助手</title>
+    <title>简历详情 - AI 简历助手</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="navbar-content">
-            <div class="navbar-title">AI简历助手</div>
+            <div class="navbar-title">AI 简历助手</div>
             <div class="navbar-user">
                 <span id="userInfo"></span>
                 <button id="logoutBtn" class="btn btn-secondary">退出登录</button>
             </div>
         </div>
     </nav>
+
     <div class="container">
-        <a href="/dashboard.html" class="btn btn-secondary" style="margin-bottom: 20px;">← 返回</a>
+        <a href="/dashboard.html" class="btn btn-secondary" style="margin-bottom: 20px;">返回工作台</a>
 
         <div id="content">
             <div id="loading" class="loading">加载中...</div>
             <div id="errorMessage" class="hidden"></div>
 
-            <!-- 简历信息 -->
             <div class="card">
-                <h2 style="margin-bottom: 20px; color: #333;">简历信息</h2>
+                <h2 class="section-title">简历信息</h2>
                 <div id="resumeInfo"></div>
             </div>
 
-            <!-- 简历分析 -->
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="color: #333;">简历分析</h2>
+                <div class="section-header">
+                    <div>
+                        <h2>简历分析</h2>
+                        <p class="section-desc">先做整体分析，再决定如何优化表达。</p>
+                    </div>
                     <button id="analyzeBtn" class="btn btn-primary">开始分析</button>
                 </div>
                 <div id="analysisResult"></div>
             </div>
 
-            <!-- 面试题目生成 -->
             <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-                    <h2 style="color: #333;">面试题目</h2>
-                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <input type="number" id="numQuestions" min="1" max="50" value="10" 
-                            style="width: 80px; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px;">
-                        <span style="color: #666;">道题目</span>
+                <div class="section-header">
+                    <div>
+                        <h2>面试题目</h2>
+                        <p class="section-desc">根据简历内容生成面试题和参考回答。</p>
+                    </div>
+                    <div class="resume-actions">
+                        <input type="number" id="numQuestions" min="1" max="30" value="10" class="small-number-input">
                         <button id="generateBtn" class="btn btn-success">生成题目</button>
                     </div>
                 </div>
                 <div id="generating" class="hidden"></div>
                 <div id="questionsList"></div>
             </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <div>
+                        <h2>优化生成</h2>
+                        <p class="section-desc">基于问诊画像和岗位匹配结果，生成可导出的优化版简历。</p>
+                    </div>
+                </div>
+                <div class="optimization-toolbar">
+                    <div class="form-group">
+                        <label for="versionTypeSelect">版本类型</label>
+                        <select id="versionTypeSelect">
+                            <option value="general">通用优化版</option>
+                            <option value="job_targeted">岗位定制版</option>
+                            <option value="compact">精简投递版</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sessionSelect">问诊画像</label>
+                        <select id="sessionSelect"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobMatchSelect">岗位匹配结果</label>
+                        <select id="jobMatchSelect"></select>
+                    </div>
+                    <div class="form-group action-group">
+                        <button id="generateOptimizationBtn" class="btn btn-primary" type="button">生成优化版本</button>
+                    </div>
+                </div>
+                <div id="optimizationMessage" class="hidden"></div>
+                <div id="optimizationVersions" class="resume-list"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <div>
+                        <h2>导出记录</h2>
+                        <p class="section-desc">已导出的优化版本会记录在这里。</p>
+                    </div>
+                </div>
+                <div id="exportRecords" class="resume-list"></div>
+            </div>
         </div>
     </div>
+
     <script src="/static/js/api.js"></script>
     <script src="/static/js/resume.js"></script>
 </body>
 </html>
-

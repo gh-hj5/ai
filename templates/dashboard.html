@@ -3,48 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的简历 - AI简历助手</title>
+    <title>工作台 - AI 简历助手</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="navbar-content">
-            <div class="navbar-title">AI简历助手</div>
+            <div class="navbar-title">AI 简历助手</div>
             <div class="navbar-user">
                 <span id="userInfo"></span>
                 <button id="logoutBtn" class="btn btn-secondary">退出登录</button>
             </div>
         </div>
     </nav>
-    <div class="container">
-        <h1 class="page-title">我的简历</h1>
 
-        <!-- 上传区域 -->
+    <div class="container">
+        <h1 class="page-title">我的简历工作台</h1>
+
         <div class="card">
-            <h2 style="margin-bottom: 20px; color: #333;">上传新简历</h2>
+            <div class="section-header">
+                <div>
+                    <h2>个人资料</h2>
+                    <p class="section-desc">这些资料会作为问诊、岗位匹配和简历优化的默认基础信息。</p>
+                </div>
+                <button id="saveProfileBtn" class="btn btn-primary" type="button">保存资料</button>
+            </div>
+            <div id="profileMessage" class="hidden"></div>
+            <div class="optimization-toolbar">
+                <div class="form-group">
+                    <label for="fullNameInput">姓名</label>
+                    <input id="fullNameInput" type="text" placeholder="例如：张三">
+                </div>
+                <div class="form-group">
+                    <label for="schoolInput">学校</label>
+                    <input id="schoolInput" type="text" placeholder="例如：XX 大学">
+                </div>
+                <div class="form-group">
+                    <label for="degreeInput">学历</label>
+                    <input id="degreeInput" type="text" placeholder="例如：本科 / 硕士">
+                </div>
+                <div class="form-group">
+                    <label for="majorInput">专业</label>
+                    <input id="majorInput" type="text" placeholder="例如：软件工程">
+                </div>
+                <div class="form-group">
+                    <label for="graduationYearInput">毕业时间</label>
+                    <input id="graduationYearInput" type="text" placeholder="例如：2026">
+                </div>
+                <div class="form-group">
+                    <label for="targetCityInput">目标城市</label>
+                    <input id="targetCityInput" type="text" placeholder="例如：上海">
+                </div>
+                <div class="form-group">
+                    <label for="targetIndustryInput">目标行业</label>
+                    <input id="targetIndustryInput" type="text" placeholder="例如：企业服务">
+                </div>
+                <div class="form-group">
+                    <label for="bioInput">补充说明</label>
+                    <input id="bioInput" type="text" placeholder="例如：希望优先投递 AI 应用方向">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-header">
+                <div>
+                    <h2>大模型连接状态</h2>
+                    <p class="section-desc">填好 `.env.local` 里的 OpenRouter Key 后，可以在这里直接验证是否已经接入成功。</p>
+                </div>
+                <button id="testLlmBtn" class="btn btn-primary">测试大模型连接</button>
+            </div>
+            <div id="llmStatusCard" class="status-card">
+                <div><strong>状态：</strong><span id="llmEnabledText">检测中...</span></div>
+                <div><strong>Provider：</strong><span id="llmProviderText">-</span></div>
+                <div><strong>Model：</strong><span id="llmModelText">-</span></div>
+            </div>
+            <div id="llmErrorMessage" class="hidden"></div>
+            <div id="llmSuccessMessage" class="hidden"></div>
+            <div id="llmReplyBox" class="summary-box hidden"></div>
+        </div>
+
+        <div class="card">
+            <div class="section-header">
+                <div>
+                    <h2>问诊式求职分析</h2>
+                    <p class="section-desc">先用对话梳理求职方向、经历亮点和优化目标，再继续做岗位匹配和简历优化。</p>
+                </div>
+                <button id="newInterviewBtn" class="btn btn-primary">开始新问诊</button>
+            </div>
+            <div id="interviewLoading" class="loading hidden">加载中...</div>
+            <div id="interviewErrorMessage" class="hidden"></div>
+            <div id="interviewList" class="resume-list"></div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">上传新简历</h2>
             <div id="uploadArea" class="file-upload-area">
-                <div class="upload-icon">📄</div>
-                <p style="font-size: 18px; color: #667eea; margin-bottom: 10px; font-weight: 500;">
-                    点击或拖拽PDF文件到这里
-                </p>
-                <p style="color: #999; font-size: 14px;">支持PDF格式，最大16MB</p>
-                <input type="file" id="fileInput" class="file-input" accept=".pdf">
+                <div class="upload-icon">PDF</div>
+                <p class="upload-title">点击或拖拽 PDF / DOCX 文件到这里</p>
+                <p class="upload-subtitle">支持 PDF、DOCX 格式，最大 16MB</p>
+                <input type="file" id="fileInput" class="file-input" accept=".pdf,.docx">
             </div>
             <div id="uploading" class="hidden"></div>
             <div id="uploadErrorMessage" class="hidden"></div>
             <div id="uploadSuccessMessage" class="hidden"></div>
         </div>
 
-        <!-- 简历列表 -->
         <div class="card">
-            <h2 style="margin-bottom: 20px; color: #333;">简历列表</h2>
+            <h2 class="section-title">简历列表</h2>
             <div id="loading" class="loading">加载中...</div>
             <div id="errorMessage" class="hidden"></div>
             <div id="resumeList" class="resume-list"></div>
         </div>
     </div>
+
     <script src="/static/js/api.js"></script>
     <script src="/static/js/dashboard.js"></script>
 </body>
 </html>
-

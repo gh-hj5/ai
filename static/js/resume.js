@@ -1,24 +1,19 @@
-// 简历详情页面逻辑
 document.addEventListener('DOMContentLoaded', async function() {
-    // 检查登录状态
     const user = userManager.getUser();
     if (!user) {
         window.location.href = '/login.html';
         return;
     }
 
-    // 显示用户信息
     const userInfo = document.getElementById('userInfo');
     if (userInfo) {
         userInfo.textContent = `欢迎，${user.username}`;
     }
 
-    // 获取简历ID
     const urlParams = new URLSearchParams(window.location.search);
-    const resumeId = urlParams.get('id');
-
+    const resumeId = Number(urlParams.get('id'));
     if (!resumeId) {
-        document.getElementById('content').innerHTML = '<div class="error-message">简历ID不存在</div>';
+        document.getElementById('content').innerHTML = '<div class="error-message">简历 ID 不存在。</div>';
         return;
     }
 
@@ -27,48 +22,62 @@ document.addEventListener('DOMContentLoaded', async function() {
     const resumeInfo = document.getElementById('resumeInfo');
     const analysisDiv = document.getElementById('analysisResult');
     const questionsDiv = document.getElementById('questionsList');
+    const generatingDiv = document.getElementById('generating');
+    const optimizationMessage = document.getElementById('optimizationMessage');
+    const optimizationVersions = document.getElementById('optimizationVersions');
+    const exportRecords = document.getElementById('exportRecords');
+    const versionTypeSelect = document.getElementById('versionTypeSelect');
+    const sessionSelect = document.getElementById('sessionSelect');
+    const jobMatchSelect = document.getElementById('jobMatchSelect');
+
     const analyzeBtn = document.getElementById('analyzeBtn');
     const generateBtn = document.getElementById('generateBtn');
     const numQuestionsInput = document.getElementById('numQuestions');
+    const generateOptimizationBtn = document.getElementById('generateOptimizationBtn');
 
     let resume = null;
-    let analysis = null;
+    let sessions = [];
+    let sessionDetailsCache = new Map();
+    let analysis = '';
     let questions = [];
+    let versions = [];
+    let records = [];
 
-    // 加载简历数据
-    async function loadResumeData() {
+    async function loadAll() {
         try {
             loadingDiv.className = 'loading';
             errorDiv.className = 'hidden';
 
-            const response = await api.getUserResumes(user.id);
-            resume = response.resumes.find(r => r.id === parseInt(resumeId));
+            const [resumeResponse, sessionResponse, exportResponse] = await Promise.all([
+                api.getUserResumes(user.id),
+                api.getInterviewSessions(user.id),
+                api.getExportRecords(user.id),
+            ]);
 
+            resume = (resumeResponse.resumes || []).find((item) => item.id === resumeId);
             if (!resume) {
                 throw new Error('简历不存在');
             }
 
-            // 显示简历信息
-            resumeInfo.innerHTML = `
-                <p><strong>文件名：</strong>${escapeHtml(resume.filename)}</p>
-                <p><strong>上传时间：</strong>${new Date(resume.created_at).toLocaleString('zh-CN')}</p>
-            `;
+            sessions = sessionResponse.sessions || [];
+            records = exportResponse.records || [];
 
-            // 如果有分析结果，显示
-            if (resume.analysis_result) {
-                analysis = resume.analysis_result;
-                displayAnalysis();
-            }
+            const [questionResponse, optimizationResponse] = await Promise.all([
+                api.getQuestions(resumeId),
+                api.getResumeOptimizations(resumeId, user.id),
+            ]);
 
-            // 加载已有题目
-            try {
-                const questionsResponse = await api.getQuestions(resumeId);
-                questions = questionsResponse.questions || [];
-                displayQuestions();
-            } catch (err) {
-                console.error('加载题目失败:', err);
-            }
+            questions = questionResponse.questions || [];
+            versions = optimizationResponse.versions || [];
+            analysis = resume.analysis_result || '';
 
+            renderResumeInfo();
+            renderAnalysis();
+            renderQuestions();
+            renderSessionSelect();
+            await hydrateSelectedSession();
+            renderVersions();
+            renderExportRecords();
         } catch (error) {
             errorDiv.textContent = error.message;
             errorDiv.className = 'error-message';
@@ -77,97 +86,261 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    // 显示分析结果
-    function displayAnalysis() {
+    function renderResumeInfo() {
+        resumeInfo.innerHTML = `
+            <p><strong>文件名：</strong>${escapeHtml(resume.filename)}</p>
+            <p><strong>上传时间：</strong>${new Date(resume.created_at).toLocaleString('zh-CN')}</p>
+            ${resume.content_text ? `<p class="resume-preview"><strong>解析预览：</strong>${escapeHtml(resume.content_text)}</p>` : ''}
+        `;
+    }
+
+    function renderAnalysis() {
         if (analysis) {
-            analysisDiv.innerHTML = `
-                <div class="analysis-result">${escapeHtml(analysis).replace(/\n/g, '<br>')}</div>
-            `;
-            if (analyzeBtn) {
-                analyzeBtn.style.display = 'none';
-            }
+            analysisDiv.innerHTML = `<div class="analysis-result">${escapeHtml(analysis).replace(/\n/g, '<br>')}</div>`;
+            analyzeBtn.textContent = '重新分析';
         } else {
-            analysisDiv.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">点击"开始分析"按钮，AI将为您分析简历内容</p>';
+            analysisDiv.innerHTML = '<p class="empty-state">还没有分析结果，先点击“开始分析”。</p>';
+            analyzeBtn.textContent = '开始分析';
         }
     }
 
-    // 显示题目列表
-    function displayQuestions() {
-        if (questions.length > 0) {
-            questionsDiv.innerHTML = questions.map((q, index) => `
-                <div class="question-item">
-                    <span class="category">${escapeHtml(q.category || '其他')}</span>
-                    <h4>题目 ${index + 1}</h4>
-                    <div class="question-text">${escapeHtml(q.question)}</div>
-                    ${q.answer ? `
-                        <div class="answer-section">
-                            <button class="btn-toggle-answer" onclick="toggleAnswer(${index})">
-                                显示答案
-                            </button>
-                            <div class="answer-content" id="answer-${index}" style="display: none;">
-                                <strong>参考答案：</strong>
-                                <div class="answer-text">${escapeHtml(q.answer).replace(/\n/g, '<br>')}</div>
-                            </div>
+    function renderQuestions() {
+        if (!questions.length) {
+            questionsDiv.innerHTML = '<p class="empty-state">还没有题目，点击“生成题目”即可生成。</p>';
+            return;
+        }
+
+        questionsDiv.innerHTML = questions.map((question, index) => `
+            <div class="question-item">
+                <span class="category">${escapeHtml(question.category || '其他')}</span>
+                <h4>题目 ${index + 1}</h4>
+                <div class="question-text">${escapeHtml(question.question)}</div>
+                ${question.answer ? `
+                    <div class="answer-section">
+                        <button class="btn-toggle-answer" type="button" data-answer-toggle="${index}">显示答案</button>
+                        <div class="answer-content hidden" id="answer-${index}">
+                            <strong>参考答案</strong>
+                            <div class="answer-text">${escapeHtml(question.answer).replace(/\n/g, '<br>')}</div>
                         </div>
-                    ` : ''}
-                </div>
-            `).join('');
-        } else {
-            questionsDiv.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">点击"生成题目"按钮，AI将根据您的简历生成面试题目</p>';
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+
+        questionsDiv.querySelectorAll('[data-answer-toggle]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const index = button.dataset.answerToggle;
+                const answerBlock = document.getElementById(`answer-${index}`);
+                const hidden = answerBlock.classList.contains('hidden');
+                answerBlock.classList.toggle('hidden', !hidden);
+                button.textContent = hidden ? '隐藏答案' : '显示答案';
+            });
+        });
+    }
+
+    function renderSessionSelect() {
+        const options = ['<option value="">不使用问诊画像</option>'];
+        sessions.forEach((session) => {
+            options.push(
+                `<option value="${session.id}">${escapeHtml(session.title)} · ${translateStatus(session.status)}</option>`
+            );
+        });
+        sessionSelect.innerHTML = options.join('');
+
+        const firstConfirmed = sessions.find((session) => session.status === 'confirmed') || sessions[0];
+        if (firstConfirmed) {
+            sessionSelect.value = String(firstConfirmed.id);
         }
     }
 
-    // 分析简历
-    if (analyzeBtn) {
-        analyzeBtn.addEventListener('click', async function() {
-            analyzeBtn.disabled = true;
-            analyzeBtn.textContent = '分析中...';
-            errorDiv.className = 'hidden';
+    async function hydrateSelectedSession() {
+        const sessionId = Number(sessionSelect.value);
+        if (!sessionId) {
+            jobMatchSelect.innerHTML = '<option value="">不使用岗位匹配结果</option>';
+            return;
+        }
 
-            try {
-                const response = await api.analyzeResume(resumeId);
-                analysis = response.analysis;
-                displayAnalysis();
-                // 重新加载简历数据以获取最新的分析结果
-                await loadResumeData();
-            } catch (error) {
-                errorDiv.textContent = error.message;
-                errorDiv.className = 'error-message';
-            } finally {
-                analyzeBtn.disabled = false;
-                analyzeBtn.textContent = '开始分析';
-            }
+        if (!sessionDetailsCache.has(sessionId)) {
+            const detail = await api.getInterviewSession(sessionId);
+            sessionDetailsCache.set(sessionId, detail);
+        }
+        const detail = sessionDetailsCache.get(sessionId);
+        const matches = detail.job_matches || [];
+        const options = ['<option value="">不使用岗位匹配结果</option>'];
+        matches.forEach((match) => {
+            options.push(
+                `<option value="${match.id}">${escapeHtml(match.job_title)} · 匹配分 ${match.match_score}</option>`
+            );
+        });
+        jobMatchSelect.innerHTML = options.join('');
+    }
+
+    function renderVersions() {
+        if (!versions.length) {
+            optimizationVersions.innerHTML = '<p class="empty-state">还没有优化版本，先生成一版。</p>';
+            return;
+        }
+
+        optimizationVersions.innerHTML = versions.map((version) => `
+            <div class="resume-item">
+                <h3>${escapeHtml(version.title)}</h3>
+                <p><strong>版本类型：</strong>${escapeHtml(version.version_type)}</p>
+                <p><strong>目标岗位：</strong>${escapeHtml(version.target_job_title || '未指定')}</p>
+                <p><strong>生成时间：</strong>${new Date(version.created_at).toLocaleString('zh-CN')}</p>
+                <p class="resume-preview">${escapeHtml(version.summary || '')}</p>
+                <div class="summary-box">${escapeHtml(version.content)}</div>
+                ${version.highlights && version.highlights.length ? `
+                    <div class="form-hint">优化亮点：${escapeHtml(version.highlights.join('；'))}</div>
+                ` : ''}
+                <div class="resume-actions">
+                    <button type="button" class="btn btn-success" data-export-version="${version.id}" data-format="txt">导出 TXT</button>
+                    <button type="button" class="btn btn-secondary" data-export-version="${version.id}" data-format="md">导出 MD</button>
+                    <button type="button" class="btn btn-secondary" data-export-version="${version.id}" data-format="docx">导出 DOCX</button>
+                    <button type="button" class="btn btn-secondary" data-export-version="${version.id}" data-format="pdf">导出 PDF</button>
+                    <button type="button" class="btn btn-danger" data-delete-version="${version.id}">删除版本</button>
+                </div>
+            </div>
+        `).join('');
+
+        optimizationVersions.querySelectorAll('[data-export-version]').forEach((button) => {
+            button.addEventListener('click', async () => {
+                const versionId = Number(button.dataset.exportVersion);
+                const exportFormat = button.dataset.format;
+                await exportVersion(versionId, exportFormat);
+            });
+        });
+
+        optimizationVersions.querySelectorAll('[data-delete-version]').forEach((button) => {
+            button.addEventListener('click', async () => {
+                const versionId = Number(button.dataset.deleteVersion);
+                const confirmed = window.confirm('确认删除这个优化版本吗？');
+                if (!confirmed) {
+                    return;
+                }
+                try {
+                    await api.deleteResumeOptimization(versionId, user.id);
+                    await refreshOptimizationsAndExports();
+                } catch (error) {
+                    showOptimizationMessage(error.message, true);
+                }
+            });
         });
     }
 
-    // 生成题目
-    if (generateBtn) {
-        generateBtn.addEventListener('click', async function() {
-            const numQuestions = parseInt(numQuestionsInput.value) || 10;
-            generateBtn.disabled = true;
-            generateBtn.textContent = '生成中...';
-            errorDiv.className = 'hidden';
+    function renderExportRecords() {
+        const filtered = records.filter((record) => versions.some((version) => version.id === record.optimization_version_id));
+        if (!filtered.length) {
+            exportRecords.innerHTML = '<p class="empty-state">还没有导出记录。</p>';
+            return;
+        }
 
-            const generatingDiv = document.getElementById('generating');
-            generatingDiv.className = 'loading';
-
-            try {
-                const response = await api.generateQuestions(resumeId, numQuestions);
-                questions = response.questions || [];
-                displayQuestions();
-            } catch (error) {
-                errorDiv.textContent = error.message;
-                errorDiv.className = 'error-message';
-            } finally {
-                generateBtn.disabled = false;
-                generateBtn.textContent = '生成题目';
-                generatingDiv.className = 'hidden';
-            }
-        });
+        exportRecords.innerHTML = filtered.map((record) => `
+            <div class="resume-item compact-item">
+                <h3>${escapeHtml(record.export_format.toUpperCase())} 导出</h3>
+                <p><strong>导出时间：</strong>${new Date(record.created_at).toLocaleString('zh-CN')}</p>
+                <p class="resume-preview">${escapeHtml(record.file_path)}</p>
+                <div class="resume-actions">
+                    <a class="btn btn-primary" href="${api.getExportDownloadUrl(record.id, user.id)}">下载文件</a>
+                </div>
+            </div>
+        `).join('');
     }
 
-    // 退出登录
-    const logoutBtn = document.getElementById('logoutBtn');
+    function showOptimizationMessage(message, isError = false) {
+        optimizationMessage.textContent = message;
+        optimizationMessage.className = isError ? 'error-message' : 'success-message';
+    }
+
+    async function refreshOptimizationsAndExports() {
+        const [optimizationResponse, exportResponse] = await Promise.all([
+            api.getResumeOptimizations(resumeId, user.id),
+            api.getExportRecords(user.id),
+        ]);
+        versions = optimizationResponse.versions || [];
+        records = exportResponse.records || [];
+        renderVersions();
+        renderExportRecords();
+    }
+
+    async function exportVersion(versionId, exportFormat) {
+        try {
+            await api.exportResumeOptimization(versionId, user.id, exportFormat);
+            showOptimizationMessage(`已导出 ${exportFormat.toUpperCase()} 文件`);
+            await refreshOptimizationsAndExports();
+        } catch (error) {
+            showOptimizationMessage(error.message, true);
+        }
+    }
+
+    analyzeBtn.addEventListener('click', async () => {
+        analyzeBtn.disabled = true;
+        analyzeBtn.textContent = '分析中...';
+        errorDiv.className = 'hidden';
+
+        try {
+            const response = await api.analyzeResume(resumeId);
+            analysis = response.analysis;
+            renderAnalysis();
+        } catch (error) {
+            errorDiv.textContent = error.message;
+            errorDiv.className = 'error-message';
+        } finally {
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = analysis ? '重新分析' : '开始分析';
+        }
+    });
+
+    generateBtn.addEventListener('click', async () => {
+        const numQuestions = parseInt(numQuestionsInput.value, 10) || 10;
+        generateBtn.disabled = true;
+        generateBtn.textContent = '生成中...';
+        generatingDiv.className = 'loading';
+
+        try {
+            const response = await api.generateQuestions(resumeId, numQuestions);
+            questions = response.questions || [];
+            renderQuestions();
+        } catch (error) {
+            errorDiv.textContent = error.message;
+            errorDiv.className = 'error-message';
+        } finally {
+            generateBtn.disabled = false;
+            generateBtn.textContent = '生成题目';
+            generatingDiv.className = 'hidden';
+        }
+    });
+
+    sessionSelect.addEventListener('change', async () => {
+        await hydrateSelectedSession();
+    });
+
+    generateOptimizationBtn.addEventListener('click', async () => {
+        generateOptimizationBtn.disabled = true;
+        generateOptimizationBtn.textContent = '生成中...';
+        optimizationMessage.className = 'hidden';
+
+        try {
+            const payload = {
+                user_id: user.id,
+                version_type: versionTypeSelect.value,
+            };
+            if (sessionSelect.value) {
+                payload.session_id = Number(sessionSelect.value);
+            }
+            if (jobMatchSelect.value) {
+                payload.job_match_id = Number(jobMatchSelect.value);
+            }
+            await api.createResumeOptimization(resumeId, payload);
+            showOptimizationMessage('优化版本已生成');
+            await refreshOptimizationsAndExports();
+        } catch (error) {
+            showOptimizationMessage(error.message, true);
+        } finally {
+            generateOptimizationBtn.disabled = false;
+            generateOptimizationBtn.textContent = '生成优化版本';
+        }
+    });
+
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             userManager.clearUser();
@@ -175,30 +348,21 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // 初始加载
-    await loadResumeData();
-    displayAnalysis();
-    displayQuestions();
+    await loadAll();
 });
 
-// 切换答案显示/隐藏
-function toggleAnswer(index) {
-    const answerDiv = document.getElementById(`answer-${index}`);
-    const btn = answerDiv.previousElementSibling;
-    
-    if (answerDiv.style.display === 'none') {
-        answerDiv.style.display = 'block';
-        btn.textContent = '隐藏答案';
-    } else {
-        answerDiv.style.display = 'none';
-        btn.textContent = '显示答案';
+function translateStatus(status) {
+    if (status === 'confirmed') {
+        return '已确认';
     }
+    if (status === 'completed') {
+        return '待确认';
+    }
+    return '进行中';
 }
 
-// HTML转义函数
 function escapeHtml(text) {
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = text || '';
     return div.innerHTML;
 }
-
