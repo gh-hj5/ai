@@ -5,115 +5,215 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>工作台 - AI 简历助手</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/dashboard-new.css">
 </head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="navbar-title">AI 简历助手</div>
-            <div class="navbar-user">
-                <span id="userInfo"></span>
-                <button id="logoutBtn" class="btn btn-secondary">退出登录</button>
+<body class="dashboard-body">
+    <!-- 导航栏 -->
+    <nav class="glass-navbar">
+        <div class="navbar-inner">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                </div>
+                <span class="brand-text">AI 简历助手</span>
+                <span class="brand-badge">Pro</span>
+            </div>
+
+            <div class="nav-actions">
+                <div class="user-welcome">
+                    <span class="welcome-icon">👋</span>
+                    <span id="userInfo" class="username">欢迎回来</span>
+                </div>
+                <button id="profileLink" class="nav-btn nav-btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    个人资料
+                </button>
+                <button id="logoutBtn" class="nav-btn nav-btn-ghost">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    退出
+                </button>
             </div>
         </div>
     </nav>
 
-    <div class="container">
-        <h1 class="page-title">我的简历工作台</h1>
+    <!-- 主内容区 -->
+    <main class="dashboard-main">
+        <div class="dashboard-grid">
+            <!-- 左栏：问诊式求职分析 -->
+            <section class="section-card">
+                <div class="section-header-animated">
+                    <div class="section-icon pulse-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="section-title">问诊式求职分析</h2>
+                        <p class="section-subtitle">AI 助手通过对话帮您梳理求职方向、挖掘经历亮点</p>
+                    </div>
+                </div>
 
-        <div class="card">
-            <div class="section-header">
-                <div>
-                    <h2>个人资料</h2>
-                    <p class="section-desc">这些资料会作为问诊、岗位匹配和简历优化的默认基础信息。</p>
+                <button id="newInterviewBtn" class="cta-button cta-button-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>开始新问诊</span>
+                </button>
+
+                <div id="interviewLoading" class="loading-state hidden">
+                    <div class="spinner"></div>
+                    <span>加载问诊任务...</span>
                 </div>
-                <button id="saveProfileBtn" class="btn btn-primary" type="button">保存资料</button>
-            </div>
-            <div id="profileMessage" class="hidden"></div>
-            <div class="optimization-toolbar">
-                <div class="form-group">
-                    <label for="fullNameInput">姓名</label>
-                    <input id="fullNameInput" type="text" placeholder="例如：张三">
+                <div id="interviewErrorMessage" class="toast toast-error hidden"></div>
+
+                <div id="interviewList" class="task-list-animated"></div>
+            </section>
+
+            <!-- 右栏：简历管理 -->
+            <section class="section-card">
+                <div class="section-header-animated">
+                    <div class="section-icon glow-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="section-title">简历管理</h2>
+                        <p class="section-subtitle">上传、查看和优化您的简历</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="schoolInput">学校</label>
-                    <input id="schoolInput" type="text" placeholder="例如：XX 大学">
+
+                <!-- 拖拽上传区 -->
+                <div id="uploadArea" class="upload-zone">
+                    <div class="upload-zone-inner">
+                        <div class="upload-illustration">
+                            <div class="upload-cloud">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40">
+                                    <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="upload-main-text">点击或拖拽文件到此处</p>
+                            <p class="upload-sub-text">支持 PDF、DOCX 格式，最大 16MB</p>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" accept=".pdf,.docx" style="position:absolute;inset:0;opacity:0;cursor:pointer;">
                 </div>
-                <div class="form-group">
-                    <label for="degreeInput">学历</label>
-                    <input id="degreeInput" type="text" placeholder="例如：本科 / 硕士">
+
+                <div id="uploading" class="loading-state hidden">
+                    <div class="spinner"></div>
+                    <span>上传中...</span>
                 </div>
-                <div class="form-group">
-                    <label for="majorInput">专业</label>
-                    <input id="majorInput" type="text" placeholder="例如：软件工程">
+                <div id="uploadErrorMessage" class="toast toast-error hidden"></div>
+                <div id="uploadSuccessMessage" class="toast toast-success hidden"></div>
+
+                <!-- 简历列表 -->
+                <div class="resume-list-container">
+                    <div class="list-header">
+                        <h3 class="list-title">已上传简历</h3>
+                        <span id="resumeCount" class="list-count">0 份</span>
+                    </div>
+                    <div id="loading" class="loading-state hidden">
+                        <div class="spinner"></div>
+                        <span>加载简历列表...</span>
+                    </div>
+                    <div id="errorMessage" class="toast toast-error hidden"></div>
+                    <div id="resumeList" class="resume-grid"></div>
                 </div>
-                <div class="form-group">
-                    <label for="graduationYearInput">毕业时间</label>
-                    <input id="graduationYearInput" type="text" placeholder="例如：2026">
-                </div>
-                <div class="form-group">
-                    <label for="targetCityInput">目标城市</label>
-                    <input id="targetCityInput" type="text" placeholder="例如：上海">
-                </div>
-                <div class="form-group">
-                    <label for="targetIndustryInput">目标行业</label>
-                    <input id="targetIndustryInput" type="text" placeholder="例如：企业服务">
-                </div>
-                <div class="form-group">
-                    <label for="bioInput">补充说明</label>
-                    <input id="bioInput" type="text" placeholder="例如：希望优先投递 AI 应用方向">
-                </div>
-            </div>
+            </section>
         </div>
+    </main>
 
-        <div class="card">
-            <div class="section-header">
-                <div>
-                    <h2>大模型连接状态</h2>
-                    <p class="section-desc">填好 `.env.local` 里的 OpenRouter Key 后，可以在这里直接验证是否已经接入成功。</p>
+    <!-- 个人资料模态框 -->
+    <div id="profileModal" class="modal-animated hidden">
+        <div class="modal-overlay-animated"></div>
+        <div class="modal-container">
+            <div class="modal-content-animated">
+                <div class="modal-header-animated">
+                    <div class="modal-header-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div class="modal-header-text">
+                        <h2>个人资料</h2>
+                    </div>
+                    <button id="closeProfileModal" class="modal-close-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
-                <button id="testLlmBtn" class="btn btn-primary">测试大模型连接</button>
-            </div>
-            <div id="llmStatusCard" class="status-card">
-                <div><strong>状态：</strong><span id="llmEnabledText">检测中...</span></div>
-                <div><strong>Provider：</strong><span id="llmProviderText">-</span></div>
-                <div><strong>Model：</strong><span id="llmModelText">-</span></div>
-            </div>
-            <div id="llmErrorMessage" class="hidden"></div>
-            <div id="llmSuccessMessage" class="hidden"></div>
-            <div id="llmReplyBox" class="summary-box hidden"></div>
-        </div>
 
-        <div class="card">
-            <div class="section-header">
-                <div>
-                    <h2>问诊式求职分析</h2>
-                    <p class="section-desc">先用对话梳理求职方向、经历亮点和优化目标，再继续做岗位匹配和简历优化。</p>
+                <div class="modal-body-animated">
+                    <div id="profileMessage" class="toast hidden"></div>
+
+                    <div class="form-grid-modern">
+                        <div class="input-group floating">
+                            <input id="fullNameInput" type="text" placeholder=" ">
+                            <label for="fullNameInput">姓名</label>
+                        </div>
+
+                        <div class="input-group floating">
+                            <input id="schoolInput" type="text" placeholder=" ">
+                            <label for="schoolInput">学校</label>
+                        </div>
+
+                        <div class="input-group floating">
+                            <input id="degreeInput" type="text" placeholder=" ">
+                            <label for="degreeInput">学历</label>
+                        </div>
+
+                        <div class="input-group floating">
+                            <input id="majorInput" type="text" placeholder=" ">
+                            <label for="majorInput">专业</label>
+                        </div>
+
+                        <div class="input-group floating">
+                            <input id="graduationYearInput" type="text" placeholder=" ">
+                            <label for="graduationYearInput">毕业时间</label>
+                        </div>
+
+                        <div class="input-group floating">
+                            <input id="targetCityInput" type="text" placeholder=" ">
+                            <label for="targetCityInput">目标城市</label>
+                        </div>
+
+                        <div class="input-group floating">
+                            <input id="targetIndustryInput" type="text" placeholder=" ">
+                            <label for="targetIndustryInput">目标行业</label>
+                        </div>
+
+                        <div class="input-group floating full-width">
+                            <input id="bioInput" type="text" placeholder=" ">
+                            <label for="bioInput">补充说明</label>
+                        </div>
+                    </div>
                 </div>
-                <button id="newInterviewBtn" class="btn btn-primary">开始新问诊</button>
-            </div>
-            <div id="interviewLoading" class="loading hidden">加载中...</div>
-            <div id="interviewErrorMessage" class="hidden"></div>
-            <div id="interviewList" class="resume-list"></div>
-        </div>
 
-        <div class="card">
-            <h2 class="section-title">上传新简历</h2>
-            <div id="uploadArea" class="file-upload-area">
-                <div class="upload-icon">PDF</div>
-                <p class="upload-title">点击或拖拽 PDF / DOCX 文件到这里</p>
-                <p class="upload-subtitle">支持 PDF、DOCX 格式，最大 16MB</p>
-                <input type="file" id="fileInput" class="file-input" accept=".pdf,.docx">
+                <div class="modal-footer-animated">
+                    <button id="saveProfileBtn" class="cta-button cta-button-primary" style="width:auto;margin:0;">
+                        <span>保存资料</span>
+                    </button>
+                </div>
             </div>
-            <div id="uploading" class="hidden"></div>
-            <div id="uploadErrorMessage" class="hidden"></div>
-            <div id="uploadSuccessMessage" class="hidden"></div>
-        </div>
-
-        <div class="card">
-            <h2 class="section-title">简历列表</h2>
-            <div id="loading" class="loading">加载中...</div>
-            <div id="errorMessage" class="hidden"></div>
-            <div id="resumeList" class="resume-list"></div>
         </div>
     </div>
 

@@ -4,41 +4,404 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 - AI简历助手</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/auth.css">
 </head>
-<body>
+<body class="auth-page">
+    <!-- 动态背景 -->
+    <div class="auth-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="particles-container" id="particles"></div>
+    </div>
+
+    <!-- 主容器 -->
     <div class="auth-container">
-        <div class="card auth-card">
-            <h1>注册</h1>
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="regUsername">用户名</label>
-                    <input type="text" id="regUsername" name="username" required placeholder="请输入用户名">
+        <!-- 品牌展示区 -->
+        <div class="auth-brand">
+            <div class="brand-logo">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                    <rect width="64" height="64" rx="16" fill="url(#logo-gradient)"/>
+                    <path d="M20 32L28 40L44 24" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="64" y2="64">
+                            <stop stop-color="#4F46E5"/>
+                            <stop offset="1" stop-color="#7C3AED"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h1 class="brand-title">AI简历助手</h1>
+            <p class="brand-slogan">开启您的智能求职之旅</p>
+            <div class="brand-features">
+                <div class="feature-item">
+                    <span class="feature-icon">AI</span>
+                    <span class="feature-text">智能优化</span>
                 </div>
-                <div class="form-group">
-                    <label for="regEmail">邮箱</label>
-                    <input type="email" id="regEmail" name="email" required placeholder="请输入邮箱">
+                <div class="feature-item">
+                    <span class="feature-icon">JD</span>
+                    <span class="feature-text">职位匹配</span>
                 </div>
-                <div class="form-group">
-                    <label for="regPassword">密码</label>
-                    <input type="password" id="regPassword" name="password" required placeholder="请输入密码（至少6位）">
+                <div class="feature-item">
+                    <span class="feature-icon">IV</span>
+                    <span class="feature-text">模拟面试</span>
                 </div>
-                <div class="form-group">
-                    <label for="regConfirmPassword">确认密码</label>
-                    <input type="password" id="regConfirmPassword" name="confirmPassword" required placeholder="请再次输入密码">
+            </div>
+        </div>
+
+        <!-- 注册卡片 -->
+        <div class="auth-card-wrapper">
+            <div class="auth-card">
+                <div class="card-header">
+                    <h2 class="card-title">创建账号</h2>
+                    <p class="card-subtitle">填写以下信息开始您的求职之旅</p>
                 </div>
-                <div id="registerErrorMessage" class="hidden"></div>
-                <div id="registerSuccessMessage" class="hidden"></div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">注册</button>
-            </form>
-            <div class="auth-link">
-                <span>已有账号？</span>
-                <a href="/login.html">立即登录</a>
+
+                <!-- 进度指示器 -->
+                <div class="progress-steps">
+                    <div class="step active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-label">基本信息</span>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-label">安全设置</span>
+                    </div>
+                </div>
+
+                <form id="registerForm" class="auth-form">
+                    <!-- 步骤 1: 基本信息 -->
+                    <div class="form-step active" data-step="1">
+                        <div class="form-group">
+                            <label for="regUsername">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                用户名
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="text" id="regUsername" name="username" required placeholder="请输入用户名（2-20个字符）">
+                                <span class="input-focus-effect"></span>
+                                <span class="input-status"></span>
+                            </div>
+                            <span class="input-hint">用户名只能包含字母、数字和下划线</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regEmail">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                                邮箱
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="email" id="regEmail" name="email" required placeholder="请输入您的邮箱地址">
+                                <span class="input-focus-effect"></span>
+                                <span class="input-status"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 步骤 2: 安全设置 -->
+                    <div class="form-step" data-step="2">
+                        <div class="form-group">
+                            <label for="regPassword">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                密码
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="password" id="regPassword" name="password" required placeholder="请设置密码（至少6位）">
+                                <button type="button" class="toggle-password" id="togglePassword1">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-icon">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                                <span class="input-focus-effect"></span>
+                            </div>
+                            <!-- 密码强度指示器 -->
+                            <div class="password-strength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strengthFill"></div>
+                                </div>
+                                <span class="strength-text" id="strengthText">密码强度</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regConfirmPassword">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 12l2 2 4-4"/>
+                                    <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                                </svg>
+                                确认密码
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="password" id="regConfirmPassword" name="confirmPassword" required placeholder="请再次输入密码">
+                                <button type="button" class="toggle-password" id="togglePassword2">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="eye-icon">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                                <span class="input-focus-effect"></span>
+                                <span class="input-status match-status" id="matchStatus"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-wrapper terms-checkbox">
+                                <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label">
+                                    我已阅读并同意
+                                    <a href="#" class="terms-link">服务条款</a>
+                                    和
+                                    <a href="#" class="terms-link">隐私政策</a>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="registerErrorMessage" class="message error-message hidden">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <span></span>
+                    </div>
+
+                    <div id="registerSuccessMessage" class="message success-message hidden">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <span></span>
+                    </div>
+
+                    <!-- 按钮组 -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary btn-auth hidden" id="prevBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                            </svg>
+                            上一步
+                        </button>
+                        <button type="button" class="btn btn-primary btn-auth" id="nextBtn">
+                            <span class="btn-text">下一步</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-auth hidden" id="registerBtn">
+                            <span class="btn-text">完成注册</span>
+                            <span class="btn-loader hidden">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="auth-divider">
+                    <span>或使用以下方式注册</span>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="social-btn" title="微信注册">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.032zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/>
+                        </svg>
+                    </button>
+                    <button type="button" class="social-btn" title="GitHub注册">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </button>
+                    <button type="button" class="social-btn" title="Google注册">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="auth-switch">
+                    <span>已有账号？</span>
+                    <a href="/login.html" class="switch-link">
+                        立即登录
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+
     <script src="/static/js/api.js"></script>
     <script src="/static/js/auth.js"></script>
+    <script>
+        // 粒子效果
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // 多步骤表单逻辑
+        let currentStep = 1;
+        const totalSteps = 2;
+
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const formSteps = document.querySelectorAll('.form-step');
+        const progressSteps = document.querySelectorAll('.progress-steps .step');
+
+        function updateStep() {
+            // 更新表单步骤显示
+            formSteps.forEach((step, index) => {
+                step.classList.toggle('active', index + 1 === currentStep);
+            });
+
+            // 更新进度指示器
+            progressSteps.forEach((step, index) => {
+                step.classList.toggle('active', index + 1 <= currentStep);
+                step.classList.toggle('completed', index + 1 < currentStep);
+            });
+
+            // 更新按钮显示
+            if (currentStep === 1) {
+                prevBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                registerBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+                nextBtn.classList.add('hidden');
+                registerBtn.classList.remove('hidden');
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            // 验证第一步
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+
+            if (!username || !email) {
+                showError('请填写完整的用户信息');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showError('请输入有效的邮箱地址');
+                return;
+            }
+
+            currentStep++;
+            updateStep();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentStep--;
+            updateStep();
+        });
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('registerErrorMessage');
+            errorDiv.querySelector('span').textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        // 密码可见性切换
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                const icon = this.querySelector('.eye-icon');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+                } else {
+                    input.type = 'password';
+                    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+                }
+            });
+        });
+
+        // 密码强度检测
+        const passwordInput = document.getElementById('regPassword');
+        const confirmInput = document.getElementById('regConfirmPassword');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+        const matchStatus = document.getElementById('matchStatus');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            const strengthPercent = Math.min((strength / 5) * 100, 100);
+            strengthFill.style.width = strengthPercent + '%';
+
+            const colors = ['#EF4444', '#F59E0B', '#F59E0B', '#10B981', '#10B981'];
+            const texts = ['太弱', '较弱', '一般', '较强', '很强'];
+
+            strengthFill.style.backgroundColor = colors[strength - 1] || '#EF4444';
+            strengthText.textContent = texts[strength - 1] || '密码强度';
+            strengthText.style.color = colors[strength - 1] || '#6B7280';
+        });
+
+        // 密码匹配检测
+        confirmInput.addEventListener('input', function() {
+            const password = passwordInput.value;
+            const confirm = this.value;
+
+            if (!confirm) {
+                matchStatus.className = 'input-status match-status';
+                return;
+            }
+
+            if (password === confirm) {
+                matchStatus.className = 'input-status match-status match-success';
+            } else {
+                matchStatus.className = 'input-status match-status match-error';
+            }
+        });
+    </script>
 </body>
 </html>
-

@@ -1200,3 +1200,382 @@ body {
     }
 }
 
+/* ========== Dashboard 两栏布局 ========== */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.dashboard-left,
+.dashboard-right {
+    min-width: 0;
+}
+
+/* ========== 紧凑卡片样式 ========== */
+.card-compact {
+    padding: 20px;
+    margin-bottom: 0;
+}
+
+.card-header-compact {
+    margin-bottom: 16px;
+}
+
+.card-title-compact {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.card-subtitle {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+/* ========== 按钮链接样式 ========== */
+.btn-link {
+    background: none;
+    border: none;
+    color: #667eea;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 8px;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.btn-link:hover {
+    color: #764ba2;
+}
+
+.btn-compact {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+/* ========== 任务列表样式 ========== */
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.task-item {
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.task-item:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.task-item h3 {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.task-meta {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 8px;
+}
+
+.task-summary {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.task-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.task-actions .btn {
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+/* ========== 紧凑上传区 ========== */
+.upload-area-compact {
+    border: 2px dashed #667eea;
+    border-radius: 10px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: #f8f9ff;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.upload-area-compact:hover {
+    border-color: #764ba2;
+    background: #f0f2ff;
+}
+
+.upload-area-compact.dragover {
+    border-color: #764ba2;
+    background: #e8ebff;
+}
+
+.upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.upload-icon-small {
+    font-size: 24px;
+}
+
+.upload-text {
+    font-size: 14px;
+    color: #667eea;
+    font-weight: 500;
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: #999;
+}
+
+.upload-area-compact .file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* ========== 简历列表紧凑样式 ========== */
+.resume-section {
+    margin-top: 8px;
+}
+
+.section-divider {
+    height: 1px;
+    background: #e8e8e8;
+    margin-bottom: 16px;
+}
+
+.section-title-compact {
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.resume-list-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.resume-item-compact {
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 12px 14px;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.resume-item-compact:hover {
+    border-color: #667eea;
+}
+
+.resume-item-compact h3 {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.resume-item-compact .resume-meta {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 8px;
+}
+
+.resume-item-compact .resume-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.resume-item-compact .resume-actions .btn {
+    padding: 5px 12px;
+    font-size: 12px;
+}
+
+/* ========== 模态框样式 ========== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 关闭模态框时必须强制隐藏，避免被 .modal 的 display 覆盖 */
+.modal.hidden {
+    display: none;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 2;
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    color: #333;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #999;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.modal-desc {
+    margin-bottom: 16px;
+    color: #666;
+    font-size: 14px;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e8e8e8;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+/* ========== 空状态样式 ========== */
+.empty-state {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+    font-size: 14px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+/* ========== Dashboard 响应式布局 ========== */
+@media (max-width: 900px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-left,
+    .dashboard-right {
+        width: 100%;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .modal-body {
+        max-height: 50vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-compact {
+        padding: 16px;
+    }
+
+    .upload-area-compact {
+        height: 80px;
+    }
+
+    .task-actions,
+    .resume-item-compact .resume-actions {
+        flex-wrap: wrap;
+    }
+}
