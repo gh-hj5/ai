@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const errorDiv = document.getElementById('errorMessage');
     const successDiv = document.getElementById('successMessage');
     const chatMessages = document.getElementById('chatMessages');
+    const threadWrap = document.querySelector('.llm-thread-wrap');
     const profileForm = document.getElementById('profileForm');
     const sessionSummary = document.getElementById('sessionSummary');
     const sessionTitle = document.getElementById('sessionTitle');
@@ -89,7 +90,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 </div>
             </div>
         `).join('');
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        if (threadWrap) {
+            threadWrap.scrollTop = threadWrap.scrollHeight;
+        }
 
         renderProfileForm(currentSession.profile || {});
         renderAnswerPanel();
